@@ -1,0 +1,191 @@
+import javax.swing.*;
+
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Font;
+import java.awt.Toolkit;
+import java.awt.event.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
+import java.io.*;
+
+class My extends JFrame implements ActionListener {
+    private Clipboard clipboard;
+    JTextArea textArea;
+    JScrollPane scrollPane;
+    JMenuBar menuBar;
+    JMenu menu, menu2, menu3;
+    JMenuItem menuItem1, menuItem2, menuItem3, menuItem4,menuItem5,menuItem6,menuItem7;
+    JFileChooser fileChooser;
+    JColorChooser chooser;
+    Cursor cursor;
+    Font font;
+
+    My() {
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(500, 400);
+        // setLayout(null);
+        cursor=new Cursor(Cursor.HAND_CURSOR);
+        font = new Font("Agency FB",Font.BOLD,30);
+        menuBar = new JMenuBar();
+        menu = new JMenu("Files");
+        menuItem1 = new JMenuItem("Save");
+        menuItem2 = new JMenuItem("Open");
+        menuItem3 = new JMenuItem("Exit");
+        menuItem1.addActionListener(this);
+        menuItem2.addActionListener(this);
+        menuItem3.addActionListener(this);
+
+        menu.add(menuItem1);
+        menu.add(menuItem2);
+        menu.add(menuItem3);
+
+       
+
+        menu2 = new JMenu("Edit");
+        menuItem4 = new JMenuItem("Style");
+        menuItem5=new JMenuItem("Cut");
+        menuItem6=new JMenuItem("Copy");
+        menuItem7=new JMenuItem("Paste");
+        menuItem4.addActionListener(this);
+        menuItem5.addActionListener(this);
+        menuItem6.addActionListener(this);
+        menuItem7.addActionListener(this);
+        menu2.add(menuItem4);
+        menu2.add(menuItem5);
+        menu2.add(menuItem6);
+        menu2.add(menuItem7);
+
+        menu3 = new JMenu("View");
+        menuBar.add(menu);
+        menuBar.add(menu2);
+        menuBar.add(menu3);
+
+        menu.setCursor(cursor);
+        menu2.setCursor(cursor);
+        menu3.setCursor(cursor);
+        
+        clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        menuItem5.addActionListener(this);
+        menuItem6.addActionListener(this);
+        menuItem7.addActionListener(this);
+
+
+        textArea = new JTextArea();
+        textArea.setFont(font);
+        textArea.setLineWrap(true);
+        textArea.setWrapStyleWord(true);
+
+        scrollPane = new JScrollPane(textArea);
+
+        setJMenuBar(menuBar);
+        add(scrollPane);
+
+        setVisible(true);
+        setLocationRelativeTo(null);
+        fileChooser = new JFileChooser();
+
+    }
+
+    public void actionPerformed(ActionEvent e) {
+
+        if (e.getSource() == menuItem1) {
+
+            if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+                File file = fileChooser.getSelectedFile();
+                saveToFile(file);
+
+            }
+        }
+
+        else if (e.getSource() == menuItem2) {
+
+            if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+                File file = fileChooser.getSelectedFile();
+                openFromFile(file);
+            }
+        } else if (e.getSource() == menuItem3) {
+            System.exit(0);
+
+        }
+
+        if (e.getSource() == menuItem4) {
+            Color color = JColorChooser.showDialog(null, "Pick Color", Color.BLACK);
+            if (color != null) { // Check if a color was selected
+
+                textArea.setBackground(color);
+            }
+        }
+
+        if(e.getSource()==menuItem5)
+        {
+        String selectedText = textArea.getSelectedText();
+        if (selectedText != null) {
+            StringSelection stringSelection = new StringSelection(selectedText);
+            clipboard.setContents(stringSelection, null);
+            textArea.replaceSelection("");
+        
+            }
+
+        }
+
+        if(e.getSource()==menuItem6)
+        {
+        String selectedText = textArea.getSelectedText();
+        if (selectedText != null) {
+            StringSelection stringSelection = new StringSelection(selectedText);
+            
+            clipboard.setContents(stringSelection, null);
+        
+    }
+}
+
+    if(e.getSource()==menuItem7)
+        {
+            try {
+                Transferable contents = clipboard.getContents(null);
+                if (contents != null && contents.isDataFlavorSupported(DataFlavor.stringFlavor)) {
+                    String pastedText = (String) contents.getTransferData(DataFlavor.stringFlavor);
+                    textArea.insert(pastedText, textArea.getCaretPosition());
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+}
+    
+
+    }
+
+    private void saveToFile(File file) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            writer.write(textArea.getText());
+            JOptionPane.showMessageDialog(this, "File saved successfully.");
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Error saving file: " + e.getMessage());
+        }
+    }
+
+    private void openFromFile(File file) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            textArea.setText(""); // Clear existing text
+            String line;
+            while ((line = reader.readLine()) != null) {
+                textArea.append(line + "\n");
+            }
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Error opening file: " + e.getMessage());
+        }
+    }
+
+   
+        
+}
+
+public class pad {
+    public static void main(String[] args) {
+        My nMy = new My();
+    }
+
+}
